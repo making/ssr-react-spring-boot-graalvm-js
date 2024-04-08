@@ -44,7 +44,7 @@ curl -s http://localhost:8080/posts/1
 
 ## How to create a native image
 
-Make sure you `JAVE_HOME` points to GraalVM 21
+Make sure your `JAVE_HOME` points to GraalVM 21
 
 ```
 ./mvnw -Pnative native:compile -DskipTests
