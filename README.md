@@ -1,5 +1,8 @@
 # Server Side Rendering example with React + React Router + Vite + GraalVM (JS) + Spring Boot
 
+> [!NOTE]
+> The following assumes the use of GraalVM 21, but other than the creation of a native image, it should work with a different JDK (21) as well.
+
 Please execute the following command to bundle the necessary JavaScript resources before running the application in an IDE.
 
 ```
@@ -12,12 +15,18 @@ Please execute the following command to bundle the necessary JavaScript resource
 ./mvnw spring-javaformat:apply spring-boot:run
 ```
 
+```
+curl -s http://localhost:8080/posts/1
+```
+
 ## How to run the UI only
 
 ```
 cd ui
 npm run dev
 ```
+
+To develop the UI, you need to have the backend server (localhost:8080) running.
 
 ## How to create an executable jar file
 
