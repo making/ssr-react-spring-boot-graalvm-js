@@ -15,8 +15,7 @@ jobs:
         url: ${{ secrets.VAULT_ADDR }}
         role: cicd
         secrets: |
-          kv/data/cicd/github api_token | GITHUB_API_TOKEN ;
-
+          kv/data/cicd/github api_token | GITHUB_API_TOKEN
     - name: Docker Login
       run: docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_API_TOKEN }}
     - name: Install Pack
