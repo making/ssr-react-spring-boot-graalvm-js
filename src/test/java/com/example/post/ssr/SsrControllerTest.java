@@ -3,7 +3,7 @@ package com.example.post.ssr;
 import java.util.List;
 
 import com.example.post.Post;
-import com.example.post.PostService;
+import com.example.post.PostClient;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.DomNodeList;
@@ -32,11 +32,11 @@ class SsrControllerTest {
 	WebClient webClient;
 
 	@MockBean
-	PostService postService;
+	PostClient postClient;
 
 	@Test
 	void index() throws Exception {
-		given(this.postService.getPosts()).willReturn(List.of(new Post(2, "SSR", "Server Side Rendering!", 1000),
+		given(this.postClient.getPosts()).willReturn(List.of(new Post(2, "SSR", "Server Side Rendering!", 1000),
 				new Post(1, "Hello", "Hello World!", 1000)));
 		HtmlPage page = this.webClient.getPage("/");
 		HtmlDivision root = page.getHtmlElementById("root");
@@ -49,7 +49,7 @@ class SsrControllerTest {
 
 	@Test
 	void post() throws Exception {
-		given(this.postService.getPost(1)).willReturn(new Post(1, "Hello", "Hello World!", 1000));
+		given(this.postClient.getPost(1)).willReturn(new Post(1, "Hello", "Hello World!", 1000));
 		HtmlPage page = this.webClient.getPage("/posts/1");
 		HtmlDivision root = page.getHtmlElementById("root");
 		assertThat(root).isNotNull();

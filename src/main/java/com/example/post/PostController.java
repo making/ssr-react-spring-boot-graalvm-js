@@ -9,20 +9,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PostController {
 
-	private final PostService postService;
+	private final PostClient postClient;
 
-	public PostController(PostService postService) {
-		this.postService = postService;
+	public PostController(PostClient postClient) {
+		this.postClient = postClient;
 	}
 
 	@GetMapping(path = "/api/posts")
 	public List<Post> getPosts() {
-		return this.postService.getPosts();
+		return this.postClient.getPosts();
 	}
 
 	@GetMapping(path = "/api/posts/{id}")
 	public Post getPost(@PathVariable int id) {
-		return this.postService.getPost(id);
+		return this.postClient.getPost(id);
 	}
 
 }
