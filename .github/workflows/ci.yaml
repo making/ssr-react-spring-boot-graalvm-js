@@ -1,0 +1,33 @@
+name: CI
+on: [ push, pull_request ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: graalvm/setup-graalvm@v1
+      with:
+        java-version: '21'
+        distribution: 'graalvm'
+        cache: 'maven'
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Unit Tests
+      run: ./mvnw -V --no-transfer-progress clean test
+    - name: Executable Jar
+      run: |
+        set -e
+        ./mvnw -V --no-transfer-progress package -DskipTests
+        java -jar target/ssr-react-spring-boot-graalvm-js-0.0.1-SNAPSHOT.jar &
+        .github/workflows/wait.sh
+        curl --fail --show-error --silent http://localhost:8080
+        curl --fail --show-error --silent http://localhost:8080/posts/1
+        pkill -KILL java
+    - name: Native Image
+      run: |
+        set -e
+        ./mvnw -V --no-transfer-progress -Pnative native:compile -DskipTests
+        ./target/ssr-react-spring-boot-graalvm-js &
+        .github/workflows/wait.sh
+        curl --fail --show-error --silent http://localhost:8080
+        curl --fail --show-error --silent http://localhost:8080/posts/1
+        pkill -KILL ssr-react-spring-boot-graalvm-js
