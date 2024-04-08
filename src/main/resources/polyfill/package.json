@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "events": "^3.3.0",
+    "fastestsmallesttextencoderdecoder": "^1.0.22",
+    "stream-browserify": "^3.0.0",
+    "whatwg-url-without-unicode": "^8.0.0-3"
+  }
+}
