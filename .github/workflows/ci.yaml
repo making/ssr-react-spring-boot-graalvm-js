@@ -1,13 +1,16 @@
 name: CI
-on: [ push, pull_request ]
+on: [ push, pull_request, workflow_dispatch ]
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
     - uses: actions/checkout@v4
     - name: Import Secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.5.0
+      uses: hashicorp/vault-action@v2.8.1
       with:
         exportToken: true
         exportEnv: true
