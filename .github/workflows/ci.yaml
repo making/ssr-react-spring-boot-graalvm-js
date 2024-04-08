@@ -6,7 +6,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Docker Login
-      run: docker login -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }}
+      run: docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }}
     - name: Install Pack
       uses: buildpacks/github-actions/setup-pack@v5.1.0
     - name: Install GraalVM
