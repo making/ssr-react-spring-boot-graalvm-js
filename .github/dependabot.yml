@@ -8,6 +8,10 @@ updates:
   directory: "/ui"
   schedule:
     interval: "daily"
+- package-ecosystem: "npm"
+  directory: "/src/main/resources/polyfill"
+  schedule:
+    interval: "weekly"
 - package-ecosystem: "github-actions"
   directory: "/"
   schedule:
