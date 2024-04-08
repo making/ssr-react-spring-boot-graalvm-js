@@ -5,8 +5,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Import Secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.8.1
+      with:
+        exportToken: true
+        exportEnv: true
+        method: jwt
+        url: ${{ secrets.VAULT_ADDR }}
+        role: cicd
+        secrets: |
+          kv/data/cicd/github api_token | GITHUB_API_TOKEN ;
     - name: Docker Login
-      run: docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }}
+      run: docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_API_TOKEN }}
     - name: Install Pack
       uses: buildpacks/github-actions/setup-pack@v5.5.4
     - name: Install GraalVM
