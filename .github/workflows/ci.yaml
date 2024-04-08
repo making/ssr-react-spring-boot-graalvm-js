@@ -8,7 +8,7 @@ jobs:
     - name: Docker Login
       run: docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }}
     - name: Install Pack
-      uses: buildpacks/github-actions/setup-pack@v5.1.0
+      uses: buildpacks/github-actions/setup-pack@v5
     - name: Install GraalVM
       uses: graalvm/setup-graalvm@v1
       with:
