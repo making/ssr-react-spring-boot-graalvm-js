@@ -30,4 +30,3 @@ jobs:
         .github/workflows/wait.sh
         curl --fail --show-error --silent http://localhost:8080
         curl --fail --show-error --silent http://localhost:8080/posts/1
-        pkill -KILL ssr-react-spring-boot-graalvm-js
