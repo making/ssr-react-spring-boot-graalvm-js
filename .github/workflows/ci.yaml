@@ -20,7 +20,7 @@ jobs:
         secrets: |
           kv/data/cicd/github api_token | GITHUB_API_TOKEN
     - name: Docker Login
-      run: docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_API_TOKEN }}
+      run: docker login ghcr.io -u ${{ github.repository_owner }} -p ${GITHUB_API_TOKEN}
     - name: Install Pack
       uses: buildpacks/github-actions/setup-pack@v5.5.4
     - name: Install GraalVM
@@ -59,3 +59,7 @@ jobs:
         web: ./ssr-react-spring-boot-graalvm-js
         EOF
         pack build ghcr.io/${{ github.repository_owner }}/ssr-react-spring-boot-graalvm-js --gid 1000 --publish --builder paketobuildpacks/builder-jammy-tiny --path pack
+    - name: Revoke token
+      if: always()
+      run: |
+        curl -X POST -s -H "X-Vault-Token: ${VAULT_TOKEN}" ${{ secrets.VAULT_ADDR }}/v1/auth/token/revoke-self
