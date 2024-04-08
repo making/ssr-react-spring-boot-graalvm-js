@@ -1,4 +1,4 @@
-package com.example.post;
+package com.example.post.config;
 
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.context.annotation.Configuration;
