@@ -37,10 +37,11 @@ jobs:
         curl --fail --show-error --silent http://localhost:8080/posts/1
         pkill -KILL ssr-react-spring-boot-graalvm-js || true
     - name: Pack Build
+      if: github.ref == 'refs/heads/main'
       run: |
         mkdir -p pack
         mv ./target/ssr-react-spring-boot-graalvm-js ./pack
         cat <<EOF > pack/Procfile
         web: ./ssr-react-spring-boot-graalvm-js
         EOF
-        pack build ghcr.io/${{ github.repository_owner }}/ssr-react-spring-boot-graalvm-js --gid 1000 --publish --builder paketobuildpacks/builder-jammy-tiny --path --path pack
+        pack build ghcr.io/${{ github.repository_owner }}/ssr-react-spring-boot-graalvm-js --gid 1000 --publish --builder paketobuildpacks/builder-jammy-tiny --path pack
