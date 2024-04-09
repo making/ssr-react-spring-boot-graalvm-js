@@ -25,8 +25,8 @@ jobs:
       contents: read
     steps:
     - uses: actions/checkout@v4
-    - name: Git Status
-      run: git status | cat
+    - name: Git Log
+      run: git log | head -n 10
     - name: Install GraalVM
       uses: graalvm/setup-graalvm@v1
       with:
