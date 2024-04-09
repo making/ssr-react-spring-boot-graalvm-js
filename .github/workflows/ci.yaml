@@ -65,7 +65,8 @@ jobs:
         url: ${{ secrets.VAULT_ADDR }}
         role: cicd
         secrets: |
-          kv/data/cicd/github api_token | GITHUB_API_TOKEN
+          kv/data/cicd/github api_token | GITHUB_API_TOKEN ;
+          kv/data/cicd/fly api_token | FLY_API_TOKEN
     - name: Docker Login
       if: github.ref == 'refs/heads/main'
       run: docker login ghcr.io -u ${{ github.repository_owner }} -p ${GITHUB_API_TOKEN}
@@ -81,6 +82,13 @@ jobs:
         web: ./ssr-react-spring-boot-graalvm-js
         EOF
         pack build ghcr.io/${{ github.repository_owner }}/ssr-react-spring-boot-graalvm-js --gid 1000 --publish --builder paketobuildpacks/builder-jammy-tiny --path pack
+    - name: Install Fly
+      if: github.ref == 'refs/heads/main'
+      uses: superfly/flyctl-actions/setup-flyctl@master
+    - name: Deploy to Fly
+      run:
+        cd fly
+        flyctl deploy -a ssr-react-spring-boot-graalvm-js --ha=false
     - name: Revoke token
       if: always()
       run: |
