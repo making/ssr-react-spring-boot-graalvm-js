@@ -21,7 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
-@WebMvcTest(SsrController.class)
+@WebMvcTest(controllers = SsrController.class, properties = "logging.level.com.example=trace")
 @Import(ReactRenderer.class)
 class SsrControllerTest {
 
