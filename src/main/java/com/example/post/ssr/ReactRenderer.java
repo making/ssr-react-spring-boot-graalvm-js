@@ -177,7 +177,7 @@ public class ReactRenderer implements AutoCloseable {
 	static class StripedLockedCache<T> implements AutoCloseable {
 
 		private static final int LOCK_SIZE = Integer.getInteger("graaljs_context.striped_lock_size",
-				Runtime.getRuntime().availableProcessors());
+				Runtime.getRuntime().availableProcessors() * 2);
 
 		private final Lock[] locks;
 
