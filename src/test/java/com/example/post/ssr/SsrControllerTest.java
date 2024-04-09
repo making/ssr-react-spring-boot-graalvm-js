@@ -21,11 +21,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = SsrController.class, properties = "logging.level.com.example=trace")
@@ -82,7 +81,7 @@ class SsrControllerTest {
 			for (int i = 0; i < n; i++) {
 				executorService.submit(() -> {
 					try {
-						this.mvc.perform(MockMvcRequestBuilders.get("/")).andExpect(status().isOk());
+						this.mvc.perform(get("/")).andExpect(status().isOk());
 					}
 					catch (Exception e) {
 						throw new RuntimeException(e);
