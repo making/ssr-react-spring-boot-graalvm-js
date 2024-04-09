@@ -8,8 +8,12 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.graalvm.polyglot.Context;
@@ -19,6 +23,7 @@ import org.graalvm.polyglot.io.IOAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.core.NamedInheritableThreadLocal;
 import org.springframework.core.NativeDetector;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -31,50 +36,35 @@ import org.springframework.util.StreamUtils;
 @Component
 public class ReactRenderer implements AutoCloseable {
 
-	private final Context context;
-
-	private final Value render;
+	private final ThreadLocal<Value> renderHolder = new NamedInheritableThreadLocal<>("React Render");
 
 	private final String template;
 
 	private final ObjectMapper objectMapper;
 
+	private static final ConcurrentMap<String, File> fileMap = new ConcurrentHashMap<>();
+
+	private final List<Context> contexts = new ArrayList<>();
+
 	private static final Logger log = LoggerFactory.getLogger(ReactRenderer.class);
 
 	public ReactRenderer(ObjectMapper objectMapper) throws IOException {
 		this.objectMapper = objectMapper;
-		this.context = Context.newBuilder("js")
-			.allowIO(IOAccess.ALL)
-			.allowExperimentalOptions(true)
-			.option("js.esm-eval-returns-exports", "true")
-			.option("js.commonjs-require", "true")
-			.option("js.commonjs-require-cwd", getRoot("polyfill").getAbsolutePath())
-			.option("js.commonjs-core-modules-replacements",
-					"stream:stream-browserify,util:fastestsmallesttextencoderdecoder,buffer:buffer/")
-			.build();
-		this.context.eval("js", """
-				globalThis.Buffer = require('buffer').Buffer;
-				globalThis.URL = require('whatwg-url-without-unicode').URL;
-				globalThis.process = {
-					env: {
-						NODE_ENV: 'production'
-					}
-				};
-				globalThis.document = {};
-				global = globalThis;
-				""");
-		Path code = Paths.get(getRoot("server").getAbsolutePath(), "main-server.js");
-		Source source = Source.newBuilder("js", code.toFile()).mimeType("application/javascript+module").build();
-		Value exports = this.context.eval(source);
-		this.render = exports.getMember("render");
 		this.template = Files.readString(Paths.get(getRoot("META-INF/resources").getAbsolutePath(), "index.html"));
-		;
+		// pre-computing
+		getRoot("polyfill");
+		getRoot("server");
 	}
 
 	public String render(String url, Map<String, Object> input) {
+		Value render = this.renderHolder.get();
+		if (render == null) {
+			render = createRender();
+			renderHolder.set(render);
+		}
 		try {
 			String s = this.objectMapper.writeValueAsString(input);
-			Value executed = this.render.execute(url, s);
+			Value executed = render.execute(url, s);
 			Value head = executed.getMember("head");
 			Value html = executed.getMember("html");
 			return this.template
@@ -89,19 +79,61 @@ public class ReactRenderer implements AutoCloseable {
 		}
 	}
 
-	static File getRoot(String root) throws IOException {
-		if (NativeDetector.inNativeImage()) {
-			// in native image
-			return copyResources(root).toFile();
+	Value createRender() {
+		log.trace("createRender");
+		try {
+			Context context = Context.newBuilder("js")
+				.allowIO(IOAccess.ALL)
+				.allowExperimentalOptions(true)
+				.option("js.esm-eval-returns-exports", "true")
+				.option("js.commonjs-require", "true")
+				.option("js.commonjs-require-cwd", getRoot("polyfill").getAbsolutePath())
+				.option("js.commonjs-core-modules-replacements",
+						"stream:stream-browserify,util:fastestsmallesttextencoderdecoder,buffer:buffer/")
+				.build();
+			context.eval("js", """
+					globalThis.Buffer = require('buffer').Buffer;
+					globalThis.URL = require('whatwg-url-without-unicode').URL;
+					globalThis.process = {
+						env: {
+							NODE_ENV: 'production'
+						}
+					};
+					globalThis.document = {};
+					global = globalThis;
+					""");
+			Path code = Paths.get(getRoot("server").getAbsolutePath(), "main-server.js");
+			Source source = Source.newBuilder("js", code.toFile()).mimeType("application/javascript+module").build();
+			Value exports = context.eval(source);
+			this.contexts.add(context);
+			return exports.getMember("render");
 		}
-		ClassPathResource resource = new ClassPathResource(root);
-		if (resource.getURL().toString().startsWith("jar:")) {
-			// in jar file
-			return new FileSystemResource("./target/classes/" + root).getFile();
+		catch (IOException e) {
+			throw new UncheckedIOException(e);
 		}
-		else {
-			return resource.getFile();
-		}
+	}
+
+	static File getRoot(String root) {
+		return fileMap.computeIfAbsent(root, key -> {
+			log.trace("computing getRoot({})", key);
+			try {
+				if (NativeDetector.inNativeImage()) {
+					// in native image
+					return copyResources(root).toFile();
+				}
+				ClassPathResource resource = new ClassPathResource(root);
+				if (resource.getURL().toString().startsWith("jar:")) {
+					// in jar file
+					return new FileSystemResource("./target/classes/" + root).getFile();
+				}
+				else {
+					return resource.getFile();
+				}
+			}
+			catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
+		});
 	}
 
 	private static Path copyResources(String root) {
@@ -140,7 +172,7 @@ public class ReactRenderer implements AutoCloseable {
 
 	@Override
 	public void close() {
-		this.context.close();
+		this.contexts.forEach(Context::close);
 	}
 
 }
