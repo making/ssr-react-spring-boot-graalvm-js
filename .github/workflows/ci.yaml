@@ -1,5 +1,20 @@
 name: CI
-on: [ push, pull_request_target, workflow_dispatch ]
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - src/**
+    - ui/**
+    - pom.xml
+    - .github/workflows/*
+  pull_request_target:
+    paths:
+    - src/**
+    - ui/**
+    - pom.xml
+    - .github/workflows/*
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
