@@ -12,9 +12,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.Source;
@@ -38,6 +42,8 @@ public class ReactRenderer implements AutoCloseable {
 	private final String template;
 
 	private final ObjectMapper objectMapper;
+
+	private final StripedLockedCache<Value> renderCache;
 
 	private final Source globalSource;
 
@@ -69,23 +75,29 @@ public class ReactRenderer implements AutoCloseable {
 		// engine that ensures code caching
 		this.engine = Engine.newBuilder("js").build();
 		this.template = Files.readString(Paths.get(getRoot("META-INF/resources").getAbsolutePath(), "index.html"));
+		this.renderCache = new StripedLockedCache<>(bucket -> {
+			log.trace("Create new render for bucket({})", bucket);
+			Context context = Context.newBuilder("js")
+				// set the engine to a context to ensure optimized code is cached
+				.engine(this.engine)
+				.allowIO(IOAccess.ALL)
+				.allowExperimentalOptions(true)
+				.option("js.esm-eval-returns-exports", "true")
+				.option("js.commonjs-require", "true")
+				.option("js.commonjs-require-cwd", getRoot("polyfill").getAbsolutePath())
+				.option("js.commonjs-core-modules-replacements",
+						"stream:stream-browserify,util:fastestsmallesttextencoderdecoder,buffer:buffer/")
+				.build();
+			context.eval(this.globalSource);
+			Value exports = context.eval(this.mainServerSource);
+			return exports.getMember("render");
+		}, render -> render.getContext().close());
+		// pre-computing
+		getRoot("polyfill");
 	}
 
 	public String render(String url, Map<String, Object> input) {
-		try (Context context = Context.newBuilder("js")
-			// set the engine to a context to ensure optimized code is cached
-			.engine(this.engine)
-			.allowIO(IOAccess.ALL)
-			.allowExperimentalOptions(true)
-			.option("js.esm-eval-returns-exports", "true")
-			.option("js.commonjs-require", "true")
-			.option("js.commonjs-require-cwd", getRoot("polyfill").getAbsolutePath())
-			.option("js.commonjs-core-modules-replacements",
-					"stream:stream-browserify,util:fastestsmallesttextencoderdecoder,buffer:buffer/")
-			.build()) {
-			context.eval(this.globalSource);
-			Value exports = context.eval(this.mainServerSource);
-			Value render = exports.getMember("render");
+		return this.renderCache.withLocked((int) Thread.currentThread().threadId(), render -> {
 			try {
 				String s = this.objectMapper.writeValueAsString(input);
 				Value executed = render.execute(url, s);
@@ -101,7 +113,8 @@ public class ReactRenderer implements AutoCloseable {
 			catch (IOException e) {
 				throw new UncheckedIOException(e);
 			}
-		}
+		});
+
 	}
 
 	static File getRoot(String root) {
@@ -161,16 +174,51 @@ public class ReactRenderer implements AutoCloseable {
 		}
 	}
 
-	@PostConstruct
-	void warmUp() {
-		log.info("Started warming up.");
-		this.render("/", Map.of());
-		log.info("Finished warming up.");
-	}
-
 	@Override
 	public void close() {
 		this.engine.close();
+	}
+
+	static class StripedLockedCache<T> implements AutoCloseable {
+
+		private static final int LOCK_SIZE = Integer.getInteger("graaljs_context.striped_lock_size",
+				Runtime.getRuntime().availableProcessors());
+
+		private final Lock[] locks;
+
+		private final IntFunction<T> supplier;
+
+		private final Consumer<T> closer;
+
+		private final ConcurrentMap<Integer, T> cache = new ConcurrentHashMap<>();
+
+		StripedLockedCache(IntFunction<T> supplier, Consumer<T> closer) {
+			this.locks = new Lock[LOCK_SIZE];
+			for (int i = 0; i < LOCK_SIZE; i++) {
+				this.locks[i] = new ReentrantLock();
+			}
+			this.supplier = supplier;
+			this.closer = closer;
+		}
+
+		public <R> R withLocked(int key, Function<T, R> function) {
+			int bucket = key % LOCK_SIZE;
+			Lock lock = this.locks[bucket];
+			lock.lock();
+			try {
+				T t = this.cache.computeIfAbsent(bucket, this.supplier::apply);
+				return function.apply(t);
+			}
+			finally {
+				lock.unlock();
+			}
+		}
+
+		@Override
+		public void close() throws Exception {
+			this.cache.values().forEach(this.closer);
+		}
+
 	}
 
 }
