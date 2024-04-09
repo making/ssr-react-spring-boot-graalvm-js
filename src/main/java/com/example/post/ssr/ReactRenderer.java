@@ -98,7 +98,7 @@ public class ReactRenderer implements AutoCloseable {
 	public String render(String url, Map<String, Object> input) {
 		try {
 			String s = this.objectMapper.writeValueAsString(input);
-			String html = this.renderCache.withLocked((int) Thread.currentThread().threadId(), render -> {
+			String html = this.renderCache.lock((int) Thread.currentThread().threadId(), render -> {
 				Value executed = render.execute(url, s);
 				Value member = executed.getMember("html");
 				return member == null ? "" : member.asString();
@@ -196,7 +196,7 @@ public class ReactRenderer implements AutoCloseable {
 			this.closer = closer;
 		}
 
-		public <R> R withLocked(int key, Function<T, R> function) {
+		public <R> R lock(int key, Function<T, R> function) {
 			int bucket = key % LOCK_SIZE;
 			Lock lock = this.locks[bucket];
 			lock.lock();
