@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react'
 import Post from "./Post.jsx";
+import {Post as PostModel} from "./types.ts";
 
 export interface PostsProps {
-    preLoadedPosts: Post[];
+    preLoadedPosts: PostModel[];
 }
 
 const Posts: React.FC<PostsProps> = ({preLoadedPosts}) => {
@@ -14,7 +15,7 @@ const Posts: React.FC<PostsProps> = ({preLoadedPosts}) => {
                 .then(res => res.json())
                 .then(data => setPosts(data));
         }
-    }, []);
+    }, [preLoadedPosts]);
 
     return (<>
         <div>

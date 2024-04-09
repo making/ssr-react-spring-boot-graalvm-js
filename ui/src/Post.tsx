@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from "react";
 import {Link, useParams} from "react-router-dom";
+import {Post as PostModel} from "./types.ts";
 
 export interface PostProps {
-    preLoadedPost: Post;
+    preLoadedPost: PostModel;
     showDetails: boolean;
 }
 
@@ -18,7 +19,7 @@ const Post: React.FC<PostProps> = ({preLoadedPost, showDetails}) => {
                 .then(res => res.json())
                 .then(data => setPost(data));
         }
-    }, [id]);
+    }, [preLoadedPost, id]);
 
     return <>
         <h3><Link to={`/posts/${post.id}`}>{post.title}</Link></h3>

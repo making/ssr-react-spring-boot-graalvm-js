@@ -142,6 +142,17 @@
 						</configuration>
 					</execution>
 					<execution>
+						<id>npm run lint ui</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<phase>test</phase>
+						<configuration>
+							<arguments>run lint</arguments>
+							<workingDirectory>${project.basedir}/ui</workingDirectory>
+						</configuration>
+					</execution>
+					<execution>
 						<id>npm run build ui</id>
 						<goals>
 							<goal>npm</goal>
