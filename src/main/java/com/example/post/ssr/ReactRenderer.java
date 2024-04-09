@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
@@ -97,24 +96,20 @@ public class ReactRenderer implements AutoCloseable {
 	}
 
 	public String render(String url, Map<String, Object> input) {
-		return this.renderCache.withLocked((int) Thread.currentThread().threadId(), render -> {
-			try {
-				String s = this.objectMapper.writeValueAsString(input);
+		try {
+			String s = this.objectMapper.writeValueAsString(input);
+			String html = this.renderCache.withLocked((int) Thread.currentThread().threadId(), render -> {
 				Value executed = render.execute(url, s);
-				Value head = executed.getMember("head");
-				Value html = executed.getMember("html");
-				return this.template
-					.replace("<!--app-head-->", Objects.requireNonNullElse(head == null ? null : head.asString(), ""))
-					.replace("<!--app-html-->", Objects.requireNonNullElse(html == null ? null : html.asString(), ""))
-					.replace("<!--app-init-data-->", """
-							<script id="__INIT_DATA__" type="application/json">%s</script>
-							""".formatted(s));
-			}
-			catch (IOException e) {
-				throw new UncheckedIOException(e);
-			}
-		});
-
+				Value member = executed.getMember("html");
+				return member == null ? "" : member.asString();
+			});
+			return this.template.replace("<!--app-html-->", html).replace("<!--app-init-data-->", """
+					<script id="__INIT_DATA__" type="application/json">%s</script>
+					""".formatted(s));
+		}
+		catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
 	}
 
 	static File getRoot(String root) {
