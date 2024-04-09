@@ -7,7 +7,7 @@ export interface PostsProps {
 }
 
 const Posts: React.FC<PostsProps> = ({preLoadedPosts}) => {
-    const [posts, setPosts] = useState(preLoadedPosts || []);
+    const [posts, setPosts] = useState<PostModel[]>(preLoadedPosts || []);
 
     useEffect(() => {
         if (!preLoadedPosts) {

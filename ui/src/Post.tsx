@@ -8,16 +8,20 @@ export interface PostProps {
 }
 
 const Post: React.FC<PostProps> = ({preLoadedPost, showDetails}) => {
-    const [post, setPost] = useState(preLoadedPost || {
-        title: 'Loading ...'
+    const [post, setPost] = useState<PostModel>( {
+        id: 0,
+        title: 'Loading ...',
+        body: ''
     });
     const {id} = useParams();
 
     useEffect(() => {
-        if (!preLoadedPost) {
+        if (id && (!preLoadedPost || preLoadedPost.id !== Number(id))) {
             fetch(`/api/posts/${id}`)
                 .then(res => res.json())
                 .then(data => setPost(data));
+        } else if (preLoadedPost) {
+            setPost(preLoadedPost);
         }
     }, [preLoadedPost, id]);
 
