@@ -26,8 +26,8 @@ jobs:
     - name: Checkout
       run: |
         set -x
-        if [ "${{ github.event.pull_request.merge_commit_sha }}" != "" ];then
-          git checkout ${{ github.event.pull_request.merge_commit_sha }}
+        if [ "${GITHUB_SHA}" != "" ];then
+          git checkout ${GITHUB_SHA}
         fi
     - name: Import Secrets
       id: secrets
