@@ -8,7 +8,9 @@ on:
     - ui/**
     - pom.xml
     - .github/workflows/*
-  pull_request_target:
+  pull_request:
+    branches:
+    - main
     paths:
     - src/**
     - ui/**
@@ -23,27 +25,8 @@ jobs:
       contents: read
     steps:
     - uses: actions/checkout@v4
-    - name: Checkout
-      run: |
-        set -x
-        if [ "${GITHUB_SHA}" != "" ];then
-          git checkout ${GITHUB_SHA}
-        fi
-    - name: Import Secrets
-      id: secrets
-      uses: hashicorp/vault-action@v3.0.0
-      with:
-        exportToken: true
-        exportEnv: true
-        method: jwt
-        url: ${{ secrets.VAULT_ADDR }}
-        role: cicd
-        secrets: |
-          kv/data/cicd/github api_token | GITHUB_API_TOKEN
-    - name: Docker Login
-      run: docker login ghcr.io -u ${{ github.repository_owner }} -p ${GITHUB_API_TOKEN}
-    - name: Install Pack
-      uses: buildpacks/github-actions/setup-pack@v5.5.4
+    - name: Git Status
+      run: git status | cat
     - name: Install GraalVM
       uses: graalvm/setup-graalvm@v1
       with:
@@ -71,6 +54,24 @@ jobs:
         curl --fail --show-error --silent http://localhost:8080
         curl --fail --show-error --silent http://localhost:8080/posts/1
         pkill -KILL ssr-react-spring-boot-graalvm-js || true
+    - name: Import Secrets
+      if: github.ref == 'refs/heads/main'
+      id: secrets
+      uses: hashicorp/vault-action@v3.0.0
+      with:
+        exportToken: true
+        exportEnv: true
+        method: jwt
+        url: ${{ secrets.VAULT_ADDR }}
+        role: cicd
+        secrets: |
+          kv/data/cicd/github api_token | GITHUB_API_TOKEN
+    - name: Docker Login
+      if: github.ref == 'refs/heads/main'
+      run: docker login ghcr.io -u ${{ github.repository_owner }} -p ${GITHUB_API_TOKEN}
+    - name: Install Pack
+      if: github.ref == 'refs/heads/main'
+      uses: buildpacks/github-actions/setup-pack@v5.5.4
     - name: Pack Build
       if: github.ref == 'refs/heads/main'
       run: |
