@@ -1,6 +1,10 @@
 package com.example.post.ssr;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.example.post.Post;
 import com.example.post.PostClient;
@@ -17,9 +21,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = SsrController.class, properties = "logging.level.com.example=trace")
 @Import(ReactRenderer.class)
@@ -64,6 +71,28 @@ class SsrControllerTest {
 		assertThat(initData.getTextContent()).isEqualTo("""
 				{"preLoadedPost":{"id":1,"title":"Hello","body":"Hello World!","userId":1000}}
 				""".trim());
+	}
+
+	@Test
+	void concurrentAccess() throws Exception {
+		int n = 32;
+		CountDownLatch latch;
+		try (ExecutorService executorService = Executors.newFixedThreadPool(n)) {
+			latch = new CountDownLatch(n);
+			for (int i = 0; i < n; i++) {
+				executorService.submit(() -> {
+					try {
+						this.mvc.perform(MockMvcRequestBuilders.get("/")).andExpect(status().isOk());
+					}
+					catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+					latch.countDown();
+				});
+			}
+		}
+		boolean awaited = latch.await(30, TimeUnit.SECONDS);
+		assertThat(awaited).isTrue();
 	}
 
 }
