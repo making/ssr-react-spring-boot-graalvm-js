@@ -51,6 +51,11 @@
 			<version>0.3.0</version>
 		</dependency>
 		<dependency>
+			<groupId>am.ik.access-logger</groupId>
+			<artifactId>access-logger</artifactId>
+			<version>0.2.0</version>
+		</dependency>
+		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
 			<scope>runtime</scope>
