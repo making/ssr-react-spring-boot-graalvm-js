@@ -86,6 +86,7 @@ jobs:
       if: github.ref == 'refs/heads/main'
       uses: superfly/flyctl-actions/setup-flyctl@master
     - name: Deploy to Fly
+      if: github.ref == 'refs/heads/main'
       run: |
         cd fly
         flyctl deploy -a ssr-react-spring-boot-graalvm-js --ha=false
