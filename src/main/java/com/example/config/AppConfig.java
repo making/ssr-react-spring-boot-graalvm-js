@@ -1,4 +1,4 @@
-package com.example.post.config;
+package com.example.config;
 
 import am.ik.accesslogger.AccessLogger;
 

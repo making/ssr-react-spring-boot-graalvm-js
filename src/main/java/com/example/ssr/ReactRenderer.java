@@ -1,4 +1,4 @@
-package com.example.post.ssr;
+package com.example.ssr;
 
 import java.io.File;
 import java.io.IOException;

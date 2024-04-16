@@ -1,4 +1,4 @@
-package com.example.post.ssr;
+package com.example.ssr;
 
 import java.util.List;
 import java.util.Map;
