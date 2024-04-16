@@ -11,7 +11,7 @@ export default function routes(initData: object): RouteObject[] {
             path: "/posts", element: <Posts {...initData as PostsProps}/>
         },
         {
-            path: "/posts/:id", element: <Post {...initData as PostProps} showDetails={true}/>
+            path: "/posts/:id", element: <Post {...initData as PostProps}/>
         }
     ];
 }
