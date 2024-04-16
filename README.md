@@ -1,6 +1,6 @@
 # Server Side Rendering example with React + React Router + Vite + GraalVM (JS) + Spring Boot
 
-Demo: https://ssr-react-spring-boot-graalvm-js.fly.dev
+Demo: https://ssr-react-spring-boot-graalvm-js-demo.apps.ik.am
 
 > [!NOTE]
 > The following assumes the use of GraalVM 21, but other than the creation of a native image, it should work with a different JDK (21) as well.
