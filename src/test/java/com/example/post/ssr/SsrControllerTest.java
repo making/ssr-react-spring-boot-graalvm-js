@@ -47,7 +47,7 @@ class SsrControllerTest {
 		HtmlPage page = this.webClient.getPage("/");
 		HtmlDivision root = page.getHtmlElementById("root");
 		assertThat(root).isNotNull();
-		DomNodeList<DomNode> titles = root.querySelectorAll("h3");
+		DomNodeList<DomNode> titles = root.querySelectorAll("li");
 		assertThat(titles).hasSize(2);
 		assertThat(titles.get(0).getTextContent()).isEqualTo("SSR");
 		assertThat(titles.get(1).getTextContent()).isEqualTo("Hello");

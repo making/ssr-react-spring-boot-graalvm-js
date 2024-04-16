@@ -7,18 +7,17 @@ export interface PostProps {
 }
 
 const Post: React.FC<PostProps> = ({preLoadedPost}) => {
-    const [post, setPost] = useState<PostModel>(preLoadedPost || {});
-    const [loading, setLoading] = useState(true);
     const {id} = useParams();
+    const isPreLoaded = preLoadedPost && preLoadedPost.id == Number(id);
+    const [post, setPost] = useState<PostModel>(isPreLoaded ? preLoadedPost : {} as PostModel);
+    const [loading, setLoading] = useState(!isPreLoaded);
 
     useEffect(() => {
-        if (id && (!preLoadedPost || preLoadedPost.id !== Number(id))) {
+        if (id && !isPreLoaded) {
             fetch(`/api/posts/${id}`)
                 .then(res => res.json())
                 .then(data => setPost(data))
                 .finally(() => setLoading(false));
-        } else {
-            setLoading(false);
         }
     }, [preLoadedPost, id]);
 
