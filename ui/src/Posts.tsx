@@ -18,7 +18,7 @@ const Posts: React.FC<PostsProps> = ({preLoadedPosts}) => {
                 .then(data => setPosts(data))
                 .finally(() => setLoading(false));
         }
-    }, [preLoadedPosts]);
+    }, [isPreLoaded]);
 
     if (loading) {
         return <div>Loading ...</div>
