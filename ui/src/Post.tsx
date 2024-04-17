@@ -11,7 +11,7 @@ const Post: React.FC<PostProps> = ({preLoadedPost}) => {
     const {id} = useParams();
     const isPreLoaded = preLoadedPost && preLoadedPost.id == Number(id);
     const fetcher: Fetcher<PostModel, string> = (id) => fetch(`/api/posts/${id}`).then(res => res.json());
-    const {data, isLoading} = useSWR<PostModel>(isPreLoaded ? null : id, fetcher);
+    const {data, isLoading} = useSWR(isPreLoaded ? null : id, fetcher);
     const post = data || preLoadedPost;
     if (isLoading || !post) {
         return <div>Loading ...</div>

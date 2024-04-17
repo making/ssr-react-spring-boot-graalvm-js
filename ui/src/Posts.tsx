@@ -10,7 +10,7 @@ export interface PostsProps {
 const Posts: React.FC<PostsProps> = ({preLoadedPosts}) => {
     const isPreLoaded = !!preLoadedPosts;
     const fetcher: Fetcher<PostModel[], string> = (url) => fetch(url).then(res => res.json());
-    const {data, isLoading} = useSWR<PostModel[]>(isPreLoaded ? null : '/api/posts', fetcher);
+    const {data, isLoading} = useSWR(isPreLoaded ? null : '/api/posts', fetcher);
     const posts = data || preLoadedPosts;
     if (isLoading || !posts) {
         return <div>Loading ...</div>
