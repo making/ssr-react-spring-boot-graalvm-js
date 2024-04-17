@@ -2,6 +2,7 @@ package com.example.ssr;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.example.post.Post;
 import com.example.post.PostClient;
@@ -24,14 +25,15 @@ public class SsrController {
 
 	@GetMapping(path = { "/", "/posts" })
 	public String index() {
-		List<Post> posts = this.postClient.getPosts();
-		return this.reactRenderer.render("/", Map.of("preLoadedPosts", posts));
+		List<Post> posts = this.postClient.getPosts().getBody();
+		return this.reactRenderer.render("/", Map.of("preLoadedPosts", Objects.requireNonNull(posts)));
 	}
 
 	@GetMapping(path = { "/posts/{id}" })
 	public String post(@PathVariable int id) {
-		Post post = this.postClient.getPost(id);
-		return this.reactRenderer.render("/posts/%d".formatted(id), Map.of("preLoadedPost", post));
+		Post post = this.postClient.getPost(id).getBody();
+		return this.reactRenderer.render("/posts/%d".formatted(id),
+				Map.of("preLoadedPost", Objects.requireNonNull(post)));
 	}
 
 }

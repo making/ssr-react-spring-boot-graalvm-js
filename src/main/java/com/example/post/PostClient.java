@@ -6,6 +6,7 @@ import java.util.Set;
 import am.ik.spring.http.client.RetryableClientHttpRequestInterceptor;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.backoff.FixedBackOff;
 import org.springframework.web.client.RestClient;
@@ -23,13 +24,29 @@ public class PostClient {
 			.build();
 	}
 
-	public List<Post> getPosts() {
-		return this.restClient.get().uri("posts").retrieve().body(new ParameterizedTypeReference<>() {
+	public ResponseEntity<List<Post>> getPosts() {
+		return this.restClient.get().uri("posts").retrieve().toEntity(new ParameterizedTypeReference<>() {
 		});
 	}
 
-	public Post getPost(int id) {
-		return this.restClient.get().uri("posts/{id}", id).retrieve().body(Post.class);
+	public ResponseEntity<Void> headPosts(String etag) {
+		return this.restClient.head()
+			.uri("posts")
+			.headers(headers -> headers.setIfNoneMatch(etag))
+			.retrieve()
+			.toBodilessEntity();
+	}
+
+	public ResponseEntity<Post> getPost(int id) {
+		return this.restClient.get().uri("posts/{id}", id).retrieve().toEntity(Post.class);
+	}
+
+	public ResponseEntity<Void> headPost(int id, String etag) {
+		return this.restClient.head()
+			.uri("posts/{id}", id)
+			.headers(headers -> headers.setIfNoneMatch(etag))
+			.retrieve()
+			.toBodilessEntity();
 	}
 
 }

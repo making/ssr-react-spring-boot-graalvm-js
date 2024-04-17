@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,8 +43,8 @@ class SsrControllerTest {
 
 	@Test
 	void index() throws Exception {
-		given(this.postClient.getPosts()).willReturn(List.of(new Post(2, "SSR", "Server Side Rendering!", 1000),
-				new Post(1, "Hello", "Hello World!", 1000)));
+		given(this.postClient.getPosts()).willReturn(ResponseEntity.ok(List
+			.of(new Post(2, "SSR", "Server Side Rendering!", 1000), new Post(1, "Hello", "Hello World!", 1000))));
 		HtmlPage page = this.webClient.getPage("/");
 		HtmlDivision root = page.getHtmlElementById("root");
 		assertThat(root).isNotNull();
@@ -55,7 +56,7 @@ class SsrControllerTest {
 
 	@Test
 	void post() throws Exception {
-		given(this.postClient.getPost(1)).willReturn(new Post(1, "Hello", "Hello World!", 1000));
+		given(this.postClient.getPost(1)).willReturn(ResponseEntity.ok(new Post(1, "Hello", "Hello World!", 1000)));
 		HtmlPage page = this.webClient.getPage("/posts/1");
 		HtmlDivision root = page.getHtmlElementById("root");
 		assertThat(root).isNotNull();
@@ -74,6 +75,8 @@ class SsrControllerTest {
 
 	@Test
 	void concurrentAccess() throws Exception {
+		given(this.postClient.getPosts()).willReturn(ResponseEntity.ok(List
+			.of(new Post(2, "SSR", "Server Side Rendering!", 1000), new Post(1, "Hello", "Hello World!", 1000))));
 		int n = 32;
 		CountDownLatch latch;
 		try (ExecutorService executorService = Executors.newFixedThreadPool(n)) {
