@@ -1,6 +1,7 @@
-import React, {useEffect, useState} from 'react'
+import React from 'react'
 import {Post as PostModel} from "./types.ts";
 import {Link} from "react-router-dom";
+import useSWR, {Fetcher} from 'swr'
 
 export interface PostsProps {
     preLoadedPosts: PostModel[];
@@ -8,19 +9,10 @@ export interface PostsProps {
 
 const Posts: React.FC<PostsProps> = ({preLoadedPosts}) => {
     const isPreLoaded = !!preLoadedPosts;
-    const [posts, setPosts] = useState<PostModel[]>(isPreLoaded ? preLoadedPosts : []);
-    const [loading, setLoading] = useState(!isPreLoaded);
-
-    useEffect(() => {
-        if (!isPreLoaded) {
-            fetch('/api/posts')
-                .then(res => res.json())
-                .then(data => setPosts(data))
-                .finally(() => setLoading(false));
-        }
-    }, [isPreLoaded]);
-
-    if (loading) {
+    const fetcher: Fetcher<PostModel[], string> = (url) => fetch(url).then(res => res.json());
+    const {data, isLoading} = useSWR<PostModel[]>(isPreLoaded ? null : '/api/posts', fetcher);
+    const posts = data || preLoadedPosts;
+    if (isLoading || !posts) {
         return <div>Loading ...</div>
     }
     return (<>
