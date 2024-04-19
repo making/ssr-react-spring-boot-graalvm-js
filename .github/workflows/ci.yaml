@@ -49,7 +49,7 @@ jobs:
       run: |
         set -e
         ./mvnw -V --no-transfer-progress -Pnative native:compile -DskipTests
-        ./target/ssr-react-spring-boot-graalvm-js &
+        ./target/ssr-react-spring-boot-graalvm-js --management.otlp.tracing.endpoint=https://httpbin.org/post &
         .github/workflows/wait.sh
         curl --fail --show-error --silent http://localhost:8080
         curl --fail --show-error --silent http://localhost:8080/posts/1
