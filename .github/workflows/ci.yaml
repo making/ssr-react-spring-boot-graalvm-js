@@ -119,6 +119,7 @@ jobs:
         
         [env]
         "spring.application.name" = "${FLY_APP_NAME}"
+        "management.otlp.tracing.endpoint" = "https://httpbin.org/post"
         EOF
         flyctl apps create --name ssr-react-spring-boot-graalvm-js --machines || true
         flyctl deploy -a ssr-react-spring-boot-graalvm-js --ha=false
