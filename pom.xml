@@ -71,8 +71,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.sourceforge.htmlunit</groupId>
-			<artifactId>htmlunit</artifactId>
+			<groupId>io.github.ulfs</groupId>
+			<artifactId>assertj-jsoup</artifactId>
+			<version>0.1.4</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

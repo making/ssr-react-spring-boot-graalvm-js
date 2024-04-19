@@ -8,12 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.example.post.Post;
 import com.example.post.PostClient;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.gargoylesoftware.htmlunit.html.DomNodeList;
-import com.gargoylesoftware.htmlunit.html.HtmlDivision;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.HtmlScript;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +17,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static io.github.ulfs.assertj.jsoup.Assertions.assertThatDocument;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -35,9 +30,6 @@ class SsrControllerTest {
 	@Autowired
 	MockMvc mvc;
 
-	@Autowired
-	WebClient webClient;
-
 	@MockBean
 	PostClient postClient;
 
@@ -45,32 +37,35 @@ class SsrControllerTest {
 	void index() throws Exception {
 		given(this.postClient.getPosts()).willReturn(ResponseEntity.ok(List
 			.of(new Post(2, "SSR", "Server Side Rendering!", 1000), new Post(1, "Hello", "Hello World!", 1000))));
-		HtmlPage page = this.webClient.getPage("/");
-		HtmlDivision root = page.getHtmlElementById("root");
-		assertThat(root).isNotNull();
-		DomNodeList<DomNode> titles = root.querySelectorAll("li");
-		assertThat(titles).hasSize(2);
-		assertThat(titles.get(0).getTextContent()).isEqualTo("SSR");
-		assertThat(titles.get(1).getTextContent()).isEqualTo("Hello");
+		String body = this.mvc.perform(get("/"))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		assertThatDocument(body) //
+			.elementHasText("#root ul > li:nth-child(1)", "SSR") //
+			.elementHasText("#root ul > li:nth-child(2)", "Hello") //
+			.elementHasHtml("#__INIT_DATA__",
+					"""
+							{"preLoadedPosts":[{"id":2,"title":"SSR","body":"Server Side Rendering!","userId":1000},{"id":1,"title":"Hello","body":"Hello World!","userId":1000}]}
+							"""
+						.trim());
 	}
 
 	@Test
 	void post() throws Exception {
 		given(this.postClient.getPost(1)).willReturn(ResponseEntity.ok(new Post(1, "Hello", "Hello World!", 1000)));
-		HtmlPage page = this.webClient.getPage("/posts/1");
-		HtmlDivision root = page.getHtmlElementById("root");
-		assertThat(root).isNotNull();
-		DomNode title = root.querySelector("h3");
-		assertThat(title).isNotNull();
-		assertThat(title.getTextContent()).isEqualTo("Hello");
-		DomNode body = root.querySelector("p");
-		assertThat(body).isNotNull();
-		assertThat(body.getTextContent()).isEqualTo("Hello World!");
-		HtmlScript initData = page.getHtmlElementById("__INIT_DATA__");
-		assertThat(initData).isNotNull();
-		assertThat(initData.getTextContent()).isEqualTo("""
-				{"preLoadedPost":{"id":1,"title":"Hello","body":"Hello World!","userId":1000}}
-				""".trim());
+		String body = this.mvc.perform(get("/posts/1"))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		assertThatDocument(body) //
+			.elementHasText("#root > h3", "Hello") //
+			.elementHasText("#root > p", "Hello World!") //
+			.elementHasHtml("#__INIT_DATA__", """
+					{"preLoadedPost":{"id":1,"title":"Hello","body":"Hello World!","userId":1000}}
+					""".trim());
 	}
 
 	@Test
