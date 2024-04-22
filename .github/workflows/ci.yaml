@@ -72,7 +72,7 @@ jobs:
       run: docker login ghcr.io -u ${{ github.repository_owner }} -p ${GITHUB_API_TOKEN}
     - name: Install Pack
       if: github.ref == 'refs/heads/main'
-      uses: buildpacks/github-actions/setup-pack@v5.5.4
+      uses: buildpacks/github-actions/setup-pack@v5.6.0
     - name: Pack Build
       if: github.ref == 'refs/heads/main'
       run: |
