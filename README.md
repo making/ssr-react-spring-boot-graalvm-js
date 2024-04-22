@@ -53,7 +53,7 @@ Make sure your `JAVE_HOME` points to GraalVM 21
 ```
 
 ```
-./target/ssr-react-spring-boot-graalvm-js
+./target/ssr-react-spring-boot-graalvm-js --management.otlp.tracing.endpoint=https://httpbin.org/post
 ```
 
 ```
