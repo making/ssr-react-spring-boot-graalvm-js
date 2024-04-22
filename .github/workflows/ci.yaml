@@ -88,7 +88,7 @@ jobs:
           --publish \
           --builder paketobuildpacks/builder-jammy-tiny \
           --buildpack gcr.io/paketo-buildpacks/image-labels \
-          --buildpack gcr.io/paketo-buildpacks/procfile \          
+          --buildpack gcr.io/paketo-buildpacks/procfile \
           --path pack
     - name: Install Fly
       if: github.ref == 'refs/heads/main'
