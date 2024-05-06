@@ -46,6 +46,7 @@ jobs:
         curl --fail --show-error --silent http://localhost:8080/posts/1
         pkill -KILL java
     - name: Native Image
+      if: github.ref == 'refs/heads/main'
       run: |
         set -e
         ./mvnw -V --no-transfer-progress -Pnative native:compile -DskipTests
