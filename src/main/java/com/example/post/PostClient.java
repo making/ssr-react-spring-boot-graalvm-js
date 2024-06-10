@@ -1,14 +1,10 @@
 package com.example.post;
 
 import java.util.List;
-import java.util.Set;
-
-import am.ik.spring.http.client.RetryableClientHttpRequestInterceptor;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.backoff.FixedBackOff;
 import org.springframework.web.client.RestClient;
 
 @Component
@@ -17,11 +13,7 @@ public class PostClient {
 	private final RestClient restClient;
 
 	public PostClient(PostApiProps props, RestClient.Builder restClientBuilder) {
-		this.restClient = restClientBuilder.baseUrl(props.url())
-			.requestInterceptor(new RetryableClientHttpRequestInterceptor(
-					new FixedBackOff(1_000, 2), opts -> opts.sensitiveHeaders(Set.of("nel", "report-to",
-							"reporting-endpoints") /* noisy headers */)))
-			.build();
+		this.restClient = restClientBuilder.baseUrl(props.url()).build();
 	}
 
 	public ResponseEntity<List<Post>> getPosts() {

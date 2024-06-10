@@ -23,7 +23,8 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = SsrController.class, properties = "logging.level.com.example=trace")
+@WebMvcTest(controllers = SsrController.class,
+		properties = { "logging.level.com.example=trace", "logging.logback.ecs-encoder.enabled=false" })
 @Import(ReactRenderer.class)
 class SsrControllerTest {
 

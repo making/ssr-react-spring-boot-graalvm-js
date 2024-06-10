@@ -51,9 +51,14 @@
 			<version>0.5.1</version>
 		</dependency>
 		<dependency>
-			<groupId>am.ik.access-logger</groupId>
-			<artifactId>access-logger</artifactId>
-			<version>0.3.2</version>
+			<groupId>am.ik.spring.logbook</groupId>
+			<artifactId>access-logger-logbook</artifactId>
+			<version>0.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>am.ik.spring.ecs</groupId>
+			<artifactId>logback-ecs-encoder-autoconfigure</artifactId>
+			<version>0.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>io.micrometer</groupId>
