@@ -58,7 +58,7 @@ jobs:
     - name: Import Secrets
       if: github.ref == 'refs/heads/main'
       id: secrets
-      uses: hashicorp/vault-action@v3.0.0
+      uses: hashicorp/vault-action@v3.1.0
       with:
         exportToken: true
         exportEnv: true
