@@ -134,7 +134,7 @@
 				<version>1.15.1</version>
 				<configuration>
 					<installDirectory>target</installDirectory>
-					<nodeVersion>v20.11.1</nodeVersion>
+					<nodeVersion>v22.14.0</nodeVersion>
 				</configuration>
 				<executions>
 					<execution>
