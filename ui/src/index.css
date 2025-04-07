@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    /* Base colors */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --muted: 210 40% 96.1%;
@@ -24,9 +25,26 @@
     --destructive-foreground: 210 40% 98%;
     --ring: 215 20.2% 65.1%;
     --radius: 0.5rem;
+    
+    /* Semantic color variables for light mode */
+    /* Text colors */
+    --text-primary: 31 41 55; /* gray-800 */
+    --text-secondary: 75 85 99; /* gray-600 */
+    --text-muted: 107 114 128; /* gray-500 */
+    --text-inverted: 255 255 255; /* white */
+    
+    /* Background colors */
+    --bg-primary: 255 255 255; /* white */
+    --bg-secondary: 249 250 251; /* gray-50 */
+    --bg-accent: 243 244 246; /* gray-100 */
+    
+    /* Border colors */
+    --border-primary: 229 231 235; /* gray-200 */
+    --border-secondary: 243 244 246; /* gray-100 */
   }
   
   .dark {
+    /* Base colors */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
@@ -46,10 +64,26 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --ring: 217.2 32.6% 17.5%;
+    
+    /* Semantic color variables for dark mode */
+    /* Text colors */
+    --text-primary: 229 231 235; /* gray-200 */
+    --text-secondary: 209 213 219; /* gray-300 */
+    --text-muted: 156 163 175; /* gray-400 */
+    --text-inverted: 17 24 39; /* gray-900 */
+    
+    /* Background colors */
+    --bg-primary: 31 41 55; /* gray-800 */
+    --bg-secondary: 17 24 39; /* gray-900 */
+    --bg-accent: 55 65 81; /* gray-700 */
+    
+    /* Border colors */
+    --border-primary: 75 85 99; /* gray-600 */
+    --border-secondary: 55 65 81; /* gray-700 */
   }
  
   body {
-    @apply bg-zinc-50 dark:bg-gray-900 font-sans text-gray-800 dark:text-gray-200 antialiased;
+    @apply bg-bg-secondary text-text-primary font-sans antialiased;
   }
 }
 

@@ -17,7 +17,7 @@ const ThemeToggle: React.FC = () => {
   if (!mounted) {
     return (
       <button 
-        className="p-2 rounded-md text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 transition-colors"
+        className="p-2 rounded-md text-text-secondary hover:text-primary-600 transition-colors"
         aria-label="Loading theme toggle"
       >
         <div className="w-5 h-5"></div>
@@ -28,7 +28,7 @@ const ThemeToggle: React.FC = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-md text-gray-600 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 transition-colors"
+      className="p-2 rounded-md text-text-secondary hover:text-primary-600 transition-colors"
       aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       {theme === 'dark' ? (
