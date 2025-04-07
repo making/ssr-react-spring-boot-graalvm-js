@@ -66,23 +66,6 @@ const PostDetailPage: React.FC<PostDetailPageProps> = ({preLoadedPost}) => {
                         </p>
                     ))}
                 </div>
-
-                <div
-                    className="mt-8 pt-6 border-t border-border-primary text-text-muted text-sm flex justify-between items-center">
-                    <div>
-                        Post ID: {post.id}
-                    </div>
-                    <div className="flex gap-4">
-                        <button
-                            className="text-primary-600 hover:text-primary-700 transition-colors">
-                            Share
-                        </button>
-                        <button
-                            className="text-primary-600 hover:text-primary-700 transition-colors">
-                            Save
-                        </button>
-                    </div>
-                </div>
             </article>
         </MainLayout>
     );
