@@ -14,7 +14,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         <div className="container py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-primary-700 hover:text-primary-600 transition-colors">
             <BookOpen size={28} className="text-primary-700" />
-            <span className="text-xl font-semibold">Modern Blog</span>
+            <span className="text-xl font-semibold">Demo Blog</span>
           </Link>
           <div className="flex items-center gap-4">
             <nav className="flex gap-4">
@@ -36,7 +36,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       
       <footer className="bg-bg-accent border-t border-border-primary py-6">
         <div className="container text-center text-text-muted text-sm">
-          <p>© {new Date().getFullYear()} Modern Blog. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Demo Blog. All rights reserved.</p>
         </div>
       </footer>
     </div>
