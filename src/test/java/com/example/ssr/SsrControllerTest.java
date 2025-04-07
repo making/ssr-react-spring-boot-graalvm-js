@@ -1,20 +1,18 @@
 package com.example.ssr;
 
+import com.example.post.Post;
+import com.example.post.PostClient;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import com.example.post.Post;
-import com.example.post.PostClient;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static io.github.ulfs.assertj.jsoup.Assertions.assertThatDocument;
@@ -31,7 +29,7 @@ class SsrControllerTest {
 	@Autowired
 	MockMvc mvc;
 
-	@MockBean
+	@MockitoBean
 	PostClient postClient;
 
 	@Test
@@ -44,8 +42,8 @@ class SsrControllerTest {
 			.getResponse()
 			.getContentAsString();
 		assertThatDocument(body) //
-			.elementHasText("#root ul > li:nth-child(1)", "SSR") //
-			.elementHasText("#root ul > li:nth-child(2)", "Hello") //
+			.elementHasText("#root main article:nth-child(1) h2", "SSR") //
+			.elementHasText("#root main article:nth-child(2) h2", "Hello") //
 			.elementHasHtml("#__INIT_DATA__",
 					"""
 							{"preLoadedPosts":[{"id":2,"title":"SSR","body":"Server Side Rendering!","userId":1000},{"id":1,"title":"Hello","body":"Hello World!","userId":1000}]}
@@ -62,8 +60,8 @@ class SsrControllerTest {
 			.getResponse()
 			.getContentAsString();
 		assertThatDocument(body) //
-			.elementHasText("#root > h3", "Hello") //
-			.elementHasText("#root > p", "Hello World!") //
+			.elementHasText("#root main article h1", "Hello") //
+			.elementHasText("#root main article p", "Hello World!") //
 			.elementHasHtml("#__INIT_DATA__", """
 					{"preLoadedPost":{"id":1,"title":"Hello","body":"Hello World!","userId":1000}}
 					""".trim());
