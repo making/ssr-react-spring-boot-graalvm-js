@@ -113,6 +113,18 @@
 						</configuration>
 					</execution>
 				</executions>
+				<configuration>
+					<image>
+						<env>
+							<BP_OCI_SOURCE>https://github.com/${env.GITHUB_REPOSITORY}</BP_OCI_SOURCE>
+							<BP_OCI_REVISION>${env.GITHUB_SHA}</BP_OCI_REVISION>
+						</env>
+						<buildpacks>
+							<buildpack>docker.io/paketobuildpacks/oracle</buildpack>
+							<buildpack>urn:cnb:builder:paketo-buildpacks/java-native-image</buildpack>
+						</buildpacks>
+					</image>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>io.spring.javaformat</groupId>
