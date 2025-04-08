@@ -16,82 +16,72 @@ on:
     - ui/**
     - pom.xml
     - .github/workflows/*
-  workflow_dispatch:
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-    - uses: actions/checkout@v4
-    - name: Git Log
-      run: git log | head -n 10
-    - name: Install GraalVM
-      uses: graalvm/setup-graalvm@v1
-      with:
-        java-version: '21'
-        distribution: 'graalvm'
-        cache: 'maven'
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Unit Tests
-      run: ./mvnw -V --no-transfer-progress clean test
-    - name: Executable Jar
-      run: |
-        set -e
-        ./mvnw -V --no-transfer-progress package -DskipTests
-        java -jar target/ssr-react-spring-boot-graalvm-js-0.0.1-SNAPSHOT.jar &
-        .github/workflows/wait.sh
-        curl --fail --show-error --silent http://localhost:8080
-        curl --fail --show-error --silent http://localhost:8080/posts/1
-        pkill -KILL java
-    - name: Native Image
-      if: github.ref == 'refs/heads/main'
-      run: |
-        set -e
-        ./mvnw -V --no-transfer-progress -Pnative native:compile -DskipTests
-        ./target/ssr-react-spring-boot-graalvm-js --management.otlp.tracing.endpoint=https://httpbin.org/post &
-        .github/workflows/wait.sh
-        curl --fail --show-error --silent http://localhost:8080
-        curl --fail --show-error --silent http://localhost:8080/posts/1
-        pkill -KILL ssr-react-spring-boot-graalvm-js || true
-    - name: Import Secrets
-      if: github.ref == 'refs/heads/main'
-      id: secrets
-      uses: hashicorp/vault-action@v3.0.0
-      with:
-        exportToken: true
-        exportEnv: true
-        method: jwt
-        url: ${{ secrets.VAULT_ADDR }}
-        role: cicd
-        secrets: |
-          kv/data/cicd/github api_token | GITHUB_API_TOKEN ;
-          kv/data/cicd/fly api_token | FLY_API_TOKEN
-    - name: Docker Login
-      if: github.ref == 'refs/heads/main'
-      run: docker login ghcr.io -u ${{ github.repository_owner }} -p ${GITHUB_API_TOKEN}
-    - name: Install Pack
-      if: github.ref == 'refs/heads/main'
-      uses: buildpacks/github-actions/setup-pack@v5.7.4
-    - name: Pack Build
-      if: github.ref == 'refs/heads/main'
-      run: |
-        mkdir -p pack
-        mv ./target/ssr-react-spring-boot-graalvm-js ./pack
-        cat <<EOF > pack/Procfile
-        web: ./ssr-react-spring-boot-graalvm-js
-        EOF
-        pack build ghcr.io/${{ github.repository_owner }}/ssr-react-spring-boot-graalvm-js \
-          --env BP_OCI_SOURCE=${GITHUB_REF_NAME}@sha1:${GITHUB_SHA} \
-          --env BP_OCI_REVISION=${GITHUB_REF_NAME}@sha1:${GITHUB_SHA} \
-          --gid 1000 \
-          --publish \
-          --builder paketobuildpacks/builder-jammy-tiny \
-          --buildpack gcr.io/paketo-buildpacks/image-labels \
-          --buildpack gcr.io/paketo-buildpacks/procfile \
-          --path pack
-    - name: Revoke token
-      if: always()
-      run: |
-        curl -X POST -s -H "X-Vault-Token: ${VAULT_TOKEN}" ${{ secrets.VAULT_ADDR }}/v1/auth/token/revoke-self || true
+  unit-test:
+    uses: categolj/workflows/.github/workflows/unit-test.yaml@main
+  build-oci-image-jvm-amd64:
+    needs: unit-test
+    uses: categolj/workflows/.github/workflows/build-oci-image-jvm.yaml@main
+    with:
+      image_name: jvm_amd64
+      image_file: jvm_amd64.yaml
+      runs_on: ubuntu-latest
+  build-oci-image-jvm-aarch64:
+    needs: unit-test
+    uses: categolj/workflows/.github/workflows/build-oci-image-jvm.yaml@main
+    with:
+      image_name: jvm_aarch64
+      image_file: jvm_aarch64.yaml
+      runs_on: ubuntu-24.04-arm
+  push-multi-arch-image-jvm:
+    needs:
+    - build-oci-image-jvm-amd64
+    - build-oci-image-jvm-aarch64
+    uses: categolj/workflows/.github/workflows/push-multi-arch-image.yaml@main
+    with:
+      prefix: jvm
+  save-image-jvm-amd64:
+    needs: build-oci-image-jvm-amd64
+    uses: categolj/workflows/.github/workflows/save-images.yaml@main
+    with:
+      image_name: jvm_amd64
+      image_file: jvm_amd64.yaml
+  save-image-jvm-aarch64:
+    needs: build-oci-image-jvm-aarch64
+    uses: categolj/workflows/.github/workflows/save-images.yaml@main
+    with:
+      image_name: jvm_aarch64
+      image_file: jvm_aarch64.yaml
+  build-oci-image-native-amd64:
+    needs: unit-test
+    uses: categolj/workflows/.github/workflows/build-oci-image-native.yaml@main
+    with:
+      image_name: native_amd64
+      image_file: native_amd64.yaml
+      runs_on: ubuntu-latest
+  build-oci-image-native-aarch64:
+    needs: unit-test
+    uses: categolj/workflows/.github/workflows/build-oci-image-native.yaml@main
+    with:
+      image_name: native_aarch64
+      image_file: native_aarch64.yaml
+      runs_on: ubuntu-24.04-arm
+  push-multi-arch-image-native:
+    needs:
+    - build-oci-image-native-amd64
+    - build-oci-image-native-aarch64
+    uses: categolj/workflows/.github/workflows/push-multi-arch-image.yaml@main
+    with:
+      prefix: native
+  save-image-native-amd64:
+    needs: build-oci-image-native-amd64
+    uses: categolj/workflows/.github/workflows/save-images.yaml@main
+    with:
+      image_name: native_amd64
+      image_file: native_amd64.yaml
+  save-image-native-aarch64:
+    needs: build-oci-image-native-aarch64
+    uses: categolj/workflows/.github/workflows/save-images.yaml@main
+    with:
+      image_name: native_aarch64
+      image_file: native_aarch64.yaml
