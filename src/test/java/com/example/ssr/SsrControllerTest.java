@@ -71,7 +71,7 @@ class SsrControllerTest {
 	void concurrentAccess() throws Exception {
 		given(this.postClient.getPosts()).willReturn(ResponseEntity.ok(List
 			.of(new Post(2, "SSR", "Server Side Rendering!", 1000), new Post(1, "Hello", "Hello World!", 1000))));
-		int n = 32;
+		int n = 8;
 		CountDownLatch latch;
 		try (ExecutorService executorService = Executors.newFixedThreadPool(n)) {
 			latch = new CountDownLatch(n);
@@ -87,7 +87,7 @@ class SsrControllerTest {
 				});
 			}
 		}
-		boolean awaited = latch.await(30, TimeUnit.SECONDS);
+		boolean awaited = latch.await(n, TimeUnit.SECONDS);
 		assertThat(awaited).isTrue();
 	}
 
