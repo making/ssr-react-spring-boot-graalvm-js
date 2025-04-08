@@ -1,2 +1,2 @@
-image: ghcr.io/making/ssr-react-spring-boot-graalvm-js@sha256:ffd594fc4be24dc54ca58911244d90b022895036c0abbb7b9b03f5fb91e0718e
-git_revision: 9116e27c8d5f9e66d50e3afd212b8f6dd3a505d9
+image: ghcr.io/making/ssr-react-spring-boot-graalvm-js@sha256:4932df03a6c02ecf761a60737402cf81334b203192464f126735658a410c9a3a
+git_revision: 63264d7e2af6c88f0c4c2c430ded43f7c8db1499
