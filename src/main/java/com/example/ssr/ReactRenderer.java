@@ -1,5 +1,7 @@
 package com.example.ssr;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.annotation.Observed;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,8 +18,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.Source;
@@ -25,7 +25,6 @@ import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.io.IOAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.core.NativeDetector;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -95,6 +94,7 @@ public class ReactRenderer implements AutoCloseable {
 		getRoot("polyfill");
 	}
 
+	@Observed(name = "react.render")
 	public String render(String url, Map<String, Object> input) {
 		try {
 			String s = this.objectMapper.writeValueAsString(input);
