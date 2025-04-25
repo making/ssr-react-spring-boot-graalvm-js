@@ -15,7 +15,7 @@
 	<description>ssr-react-spring-boot-graalvm-js</description>
 	<properties>
 		<java.version>21</java.version>
-		<graalvm.version>24.2.0</graalvm.version>
+		<graalvm.version>24.2.1</graalvm.version>
 	</properties>
 	<dependencies>
 		<dependency>
