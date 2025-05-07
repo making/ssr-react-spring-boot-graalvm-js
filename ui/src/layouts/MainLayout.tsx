@@ -10,7 +10,7 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-bg-primary shadow-sm">
+      <header className="bg-bg-primary shadow-xs">
         <div className="container py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-primary-700 hover:text-primary-600 transition-colors">
             <BookOpen size={28} className="text-primary-700" />
@@ -30,7 +30,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         </div>
       </header>
       
-      <main className="flex-grow container py-8">
+      <main className="grow container py-8">
         {children}
       </main>
       
