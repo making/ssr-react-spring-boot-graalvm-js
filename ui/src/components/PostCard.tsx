@@ -14,7 +14,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     : post.body;
   
   return (
-    <article className="bg-bg-primary rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow p-6">
+    <article className="bg-bg-primary rounded-lg shadow-xs overflow-hidden hover:shadow-md transition-shadow p-6">
       <Link to={`/posts/${post.id}`} className="block">
         <h2 className="text-xl font-bold text-text-primary mb-2 hover:text-primary-600 transition-colors">
           {post.title}

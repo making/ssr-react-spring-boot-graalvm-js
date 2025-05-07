@@ -1,6 +1,28 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@config '../tailwind.config.js';
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility container {
+  @apply mx-auto px-4 max-w-4xl;
+}
 
 @layer base {
   :root {
@@ -84,12 +106,6 @@
  
   body {
     @apply bg-bg-secondary text-text-primary font-sans antialiased;
-  }
-}
-
-@layer components {
-  .container {
-    @apply mx-auto px-4 max-w-4xl;
   }
 }
 

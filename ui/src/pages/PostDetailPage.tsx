@@ -50,7 +50,7 @@ const PostDetailPage: React.FC<PostDetailPageProps> = ({preLoadedPost}) => {
                 </Link>
             </div>
 
-            <article className="bg-bg-primary rounded-lg shadow-sm p-6 md:p-8">
+            <article className="bg-bg-primary rounded-lg shadow-xs p-6 md:p-8">
                 <header className="mb-6 border-b border-border-primary pb-4">
                     <h1 className="text-3xl font-bold text-text-primary mb-3">{post.title}</h1>
                     <div className="flex items-center text-text-muted text-sm">
